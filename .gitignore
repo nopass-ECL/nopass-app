@@ -53,3 +53,11 @@ google-services.json
 freeline.py
 freeline/
 freeline_project_description.json
+Supprimerait .idea/
+Supprimerait app/
+Supprimerait build.gradle
+Supprimerait gradle.properties
+Supprimerait gradle/
+Supprimerait gradlew
+Supprimerait gradlew.bat
+Supprimerait settings.gradle
