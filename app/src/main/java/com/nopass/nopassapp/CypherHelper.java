@@ -32,8 +32,6 @@ import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Created by hazegard on 22/03/18.
@@ -50,7 +48,7 @@ public class CypherHelper {
 
   String encryptString(String message, PublicKey publicKey) {
     try {
-      Cipher input = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding"/*"RSA/ECB/PKCS1Padding"*/);
+      Cipher input = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       CipherOutputStream cipherOutputStream = new CipherOutputStream(outputStream, input);
 
@@ -75,7 +73,7 @@ public class CypherHelper {
     return privateKey;
   }
 
-  PublicKey getPubKey(String keyName) throws UnrecoverableEntryException, NoSuchAlgorithmException, KeyStoreException {
+  private PublicKey getPubKey(String keyName) throws UnrecoverableEntryException, NoSuchAlgorithmException, KeyStoreException {
 //    KeyStore.PrivateKeyEntry entry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(keyName, null);
     PublicKey publicKey = keyStore.getCertificate(keyName).getPublicKey();
     return publicKey;
@@ -98,20 +96,10 @@ public class CypherHelper {
     return keyBytes;
   }
 
-  public Cipher getCipherDecrypt(byte[] key) throws Exception {
-    byte[] keyBytes = getKeyBytes(key);
-    Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS5Padding");
-    SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
-    IvParameterSpec ivParameterSpec = new IvParameterSpec(keyBytes);
-    cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
-    return cipher;
-  }
-
   String decryptString(String message, PrivateKey privateKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, NoSuchProviderException {
-    Cipher output = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding"/*"RSA/ECB/OAEPWithSHA-256AndMGF1Padding"*//*"RSA/ECB/OAEPWithSHA-1AndMGF1Padding"/*"RSA/ECB/OAEPWithSHA-1AndMGF1Padding"*//*"RSA/ECB/PKCS1Padding"*/);
+    Cipher output = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
     output.init(Cipher.PRIVATE_KEY, privateKey);
     byte[] decode0 = Base64.decode(message, Base64.DEFAULT);
-//    byte[] decode1 = Arrays.copyOfRange(decode0, 0, decode0.length/2);
     CipherInputStream cipherInputStream = new CipherInputStream(
       new ByteArrayInputStream(decode0), output);
     ArrayList<Byte> values = new ArrayList<>();
@@ -142,10 +130,8 @@ public class CypherHelper {
 
 
   void createNewKey(String keyName) throws KeyStoreException, NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
-    Log.d("88888888888888888888", "99999999999999999999999");
     if (!keyStore.containsAlias(keyName)) {
-//      keyStore.deleteEntry(keyName);
-      final long now = java.lang.System.currentTimeMillis();
+      Log.d("***********************","key not exists");
       KeyPairGenerator kpg = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, "AndroidKeyStore");
       KeyGenParameterSpec kps = new KeyGenParameterSpec.Builder(keyName, KeyProperties.PURPOSE_DECRYPT | KeyProperties.PURPOSE_ENCRYPT)
         .setDigests(KeyProperties.DIGEST_SHA1, KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)
@@ -153,7 +139,6 @@ public class CypherHelper {
         .build();
       kpg.initialize(kps);
       KeyPair keyPair = kpg.generateKeyPair();
-      Log.d("pub", "****************************" + new String(Base64.encode(keyPair.getPublic().getEncoded(), Base64.DEFAULT)).trim());
     }
   }
 

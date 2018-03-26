@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">NopassApp</string>
+    <string name="connexion_successful">Vous êtes maintenant connecté</string>
+    <string name="fail_connexion">La connexion a échoué</string>
 </resources>
