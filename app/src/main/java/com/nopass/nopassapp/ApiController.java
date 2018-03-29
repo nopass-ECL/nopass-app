@@ -8,13 +8,11 @@ import com.nopass.nopassapp.model.Res;
 import com.nopass.nopassapp.model.User;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
@@ -46,11 +44,8 @@ public class ApiController {
 
   private Response onOnIntercept(Interceptor.Chain chain) throws IOException {
     try {
-      Response response = chain.proceed(chain.request());
-//      String content = UtilityMethods.convertResponseToString(response);
-//      Log.d(TAG, lastCalledMethodName + " - " + content);
-      return response.newBuilder().body(ResponseBody.create(response.body().contentType(), response.message())).build();
-    } catch (SocketTimeoutException exception) {
+      return chain.proceed(chain.request());
+    } catch (Exception exception) {
       exception.printStackTrace();
       if (listener != null)
         listener.onConnectionTimeout();
@@ -61,6 +56,7 @@ public class ApiController {
 
   private Retrofit retrofit = new Retrofit.Builder()
     .baseUrl(URL)
+    .client(client)
     .addConverterFactory(GsonConverterFactory.create())
     .build();
 

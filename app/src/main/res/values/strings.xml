@@ -5,4 +5,5 @@
     <string name="connect">Me connecter</string>
     <string name="gen_keys"> Génération des clées</string>
     <string name="cancel_register"> Inscription annulée</string>
+    <string name="server_unreachable"> Le serveur est introuvable, veuillez réessayer</string>
 </resources>

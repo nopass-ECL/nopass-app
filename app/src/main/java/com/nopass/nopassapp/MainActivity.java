@@ -27,15 +27,12 @@ public class MainActivity extends AppCompatActivity implements onResponse, ApiCo
   public static final int VIEW_SUCCESS = 1;
   public static final int VIEW_FAIL = 2;
   private Controller controller;
-  private Toolbar toolbar;
   ProgressBar progressBar;
 
   LinearLayout linearLayout;
 
   @Override
   public void onSuccess() {
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    getSupportActionBar().setDisplayShowHomeEnabled(true);
     viewAnimator.setDisplayedChild(VIEW_SUCCESS);
     createSnackbar(R.string.connexion_successful, R.color.lightGreen);
     getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
@@ -48,8 +45,6 @@ public class MainActivity extends AppCompatActivity implements onResponse, ApiCo
 
   @Override
   public void onFailure() {
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    getSupportActionBar().setDisplayShowHomeEnabled(true);
     getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
     viewAnimator.setDisplayedChild(VIEW_FAIL);
     createSnackbar(R.string.fail_connexion, R.color.lightRed);
@@ -64,8 +59,6 @@ public class MainActivity extends AppCompatActivity implements onResponse, ApiCo
     progressBar.setVisibility(View.INVISIBLE);
     if (viewAnimator.getDisplayedChild() != VIEW_CONNEXION) {
       viewAnimator.setDisplayedChild(VIEW_CONNEXION);
-      getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-      getSupportActionBar().setDisplayShowHomeEnabled(true);
       getSupportActionBar().setHomeAsUpIndicator(R.drawable.appicon);
     }
   }
@@ -86,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements onResponse, ApiCo
     setContentView(R.layout.activity_main);
 
     linearLayout = findViewById(R.id.layout);
-    toolbar = findViewById(R.id.toolbar);
+    Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -133,7 +126,13 @@ public class MainActivity extends AppCompatActivity implements onResponse, ApiCo
 
   @Override
   public void onConnectionTimeout() {
-
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        createSnackbar(R.string.server_unreachable, R.color.colorPrimaryButton);
+        progressBar.setVisibility(View.INVISIBLE);
+      }
+    });
   }
 
 

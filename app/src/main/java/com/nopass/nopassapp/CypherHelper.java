@@ -123,9 +123,8 @@ public class CypherHelper {
     } catch (NoSuchAlgorithmException | NoSuchPaddingException | IOException
       | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 //      e.printStackTrace();
+      return "";
     }
-
-    return "";
   }
 
   PublicKey createPublicKey(String encodedPubKey) {
