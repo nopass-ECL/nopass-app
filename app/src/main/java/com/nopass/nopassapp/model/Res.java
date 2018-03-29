@@ -4,7 +4,7 @@ package com.nopass.nopassapp.model;
  * Created by hazegard on 25/03/18.
  */
 
-public class Verif {
+public class Res {
   Boolean res;
 
   public Boolean getRes() {

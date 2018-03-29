@@ -2,4 +2,7 @@
     <string name="app_name">NopassApp</string>
     <string name="connexion_successful">Vous êtes maintenant connecté</string>
     <string name="fail_connexion">La connexion a échoué</string>
+    <string name="connect">Me connecter</string>
+    <string name="gen_keys"> Génération des clées</string>
+    <string name="cancel_register"> Inscription annulée</string>
 </resources>

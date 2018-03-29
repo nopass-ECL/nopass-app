@@ -65,12 +65,18 @@ public class CypherHelper {
     return "";
   }
 
-  PrivateKey getPrivKey(String keyName) throws UnrecoverableEntryException, NoSuchAlgorithmException, KeyStoreException {
-    KeyStore.Entry entry = keyStore.getEntry(keyName, null);
-    PrivateKey privateKey = ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
+  PrivateKey getPrivKey(String keyName) {
+    KeyStore.Entry entry = null;
+    try {
+      entry = keyStore.getEntry(keyName, null);
+      PrivateKey privateKey = ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
+      return privateKey;
+    } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException e) {
+      e.printStackTrace();
+    }
 //    Log.d("PrivKey","**************************");
 //    Log.d("PrivKey",privateKey.getEncoded().toString());
-    return privateKey;
+    return null;
   }
 
   private PublicKey getPubKey(String keyName) throws UnrecoverableEntryException, NoSuchAlgorithmException, KeyStoreException {
@@ -96,42 +102,56 @@ public class CypherHelper {
     return keyBytes;
   }
 
-  String decryptString(String message, PrivateKey privateKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, NoSuchProviderException {
-    Cipher output = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
-    output.init(Cipher.PRIVATE_KEY, privateKey);
-    byte[] decode0 = Base64.decode(message, Base64.DEFAULT);
-    CipherInputStream cipherInputStream = new CipherInputStream(
-      new ByteArrayInputStream(decode0), output);
-    ArrayList<Byte> values = new ArrayList<>();
-    int nextByte;
-    while ((nextByte = cipherInputStream.read()) != -1) {
-      values.add((byte) nextByte);
+  String decryptString(String message, PrivateKey privateKey) {
+    Cipher output;
+    try {
+      output = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
+      output.init(Cipher.PRIVATE_KEY, privateKey);
+      byte[] decode0 = Base64.decode(message, Base64.DEFAULT);
+      CipherInputStream cipherInputStream = new CipherInputStream(
+        new ByteArrayInputStream(decode0), output);
+      ArrayList<Byte> values = new ArrayList<>();
+      int nextByte;
+      while ((nextByte = cipherInputStream.read()) != -1) {
+        values.add((byte) nextByte);
+      }
+
+      byte[] bytes = new byte[values.size()];
+      for (int i = 0; i < bytes.length; i++) {
+        bytes[i] = values.get(i);
+      }
+
+      String finaltext = new String(bytes, 0, bytes.length, "UTF-8");
+      finaltext = new String(output.doFinal(decode0), "UTF-8");
+      return finaltext;
+    } catch (NoSuchAlgorithmException | NoSuchPaddingException | IOException
+      | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+//      e.printStackTrace();
     }
 
-    byte[] bytes = new byte[values.size()];
-    for (int i = 0; i < bytes.length; i++) {
-      bytes[i] = values.get(i);
-    }
-
-    String finaltext = new String(bytes, 0, bytes.length, "UTF-8");
-    finaltext = new String(output.doFinal(decode0), "UTF-8");
-    return finaltext;
+    return "";
   }
 
-  PublicKey createPublicKey(String encodedPubKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
+  PublicKey createPublicKey(String encodedPubKey) {
 
     Log.d("encodedPubKey", encodedPubKey);
     byte[] publicBytes = Base64.decode(encodedPubKey, Base64.DEFAULT);
     X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
-    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-    RSAPublicKey pubKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
-    return pubKey;
+    KeyFactory keyFactory = null;
+    try {
+      keyFactory = KeyFactory.getInstance("RSA");
+      RSAPublicKey pubKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
+      return pubKey;
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+      e.printStackTrace();
+    }
+    return null;
   }
 
 
   void createNewKey(String keyName) throws KeyStoreException, NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
     if (!keyStore.containsAlias(keyName)) {
-      Log.d("***********************","key not exists");
+      Log.d("***********************", "key not exists");
       KeyPairGenerator kpg = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, "AndroidKeyStore");
       KeyGenParameterSpec kps = new KeyGenParameterSpec.Builder(keyName, KeyProperties.PURPOSE_DECRYPT | KeyProperties.PURPOSE_ENCRYPT)
         .setDigests(KeyProperties.DIGEST_SHA1, KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)

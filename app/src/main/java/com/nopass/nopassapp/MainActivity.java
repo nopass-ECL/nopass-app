@@ -2,37 +2,57 @@ package com.nopass.nopassapp;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.ViewAnimator;
+
+import java.text.Normalizer;
 
 
 /**
  * Created by hazegard on 22/03/20.
  */
 
-public class MainActivity extends AppCompatActivity implements onResponse {
+public class MainActivity extends AppCompatActivity implements onResponse, ApiController.OnConnectionTimeoutListener {
   public static final int VIEW_CONNEXION = 0;
   public static final int VIEW_SUCCESS = 1;
   public static final int VIEW_FAIL = 2;
   private Controller controller;
   private Toolbar toolbar;
+  ProgressBar progressBar;
+
+  LinearLayout linearLayout;
 
   @Override
   public void onSuccess() {
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     getSupportActionBar().setDisplayShowHomeEnabled(true);
     viewAnimator.setDisplayedChild(VIEW_SUCCESS);
+    createSnackbar(R.string.connexion_successful, R.color.lightGreen);
+    getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
+  }
+
+  @Override
+  public void onCancel() {
+    progressBar.setVisibility(View.INVISIBLE);
   }
 
   @Override
   public void onFailure() {
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     getSupportActionBar().setDisplayShowHomeEnabled(true);
+    getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
     viewAnimator.setDisplayedChild(VIEW_FAIL);
+    createSnackbar(R.string.fail_connexion, R.color.lightRed);
   }
 
   CypherHelper cypherHelper;
@@ -41,11 +61,23 @@ public class MainActivity extends AppCompatActivity implements onResponse {
 
   @Override
   public void onBackPressed() {
-    if(viewAnimator.getDisplayedChild() == VIEW_CONNEXION){
-
-    } else {
+    progressBar.setVisibility(View.INVISIBLE);
+    if (viewAnimator.getDisplayedChild() != VIEW_CONNEXION) {
       viewAnimator.setDisplayedChild(VIEW_CONNEXION);
+      getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+      getSupportActionBar().setDisplayShowHomeEnabled(true);
+      getSupportActionBar().setHomeAsUpIndicator(R.drawable.appicon);
     }
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case android.R.id.home:
+        onBackPressed();
+        return true;
+    }
+    return false;
   }
 
   @Override
@@ -53,130 +85,56 @@ public class MainActivity extends AppCompatActivity implements onResponse {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    linearLayout = findViewById(R.id.layout);
     toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    getSupportActionBar().setDisplayShowHomeEnabled(true);
+    getSupportActionBar().setHomeAsUpIndicator(R.drawable.appicon);
     viewAnimator = findViewById(R.id.annimator);
     username = findViewById(R.id.username);
-
-
+    progressBar = findViewById(R.id.progressbar);
     try {
       cypherHelper = new CypherHelper();
       cypherHelper.createNewKey("Test20");
     } catch (Exception e) {
       e.printStackTrace();
     }
-    controller = new Controller(cypherHelper, MainActivity.this, this);
+    controller = new Controller(cypherHelper, MainActivity.this, this, this);
 
     Button go = findViewById(R.id.go);
     go.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        String un = username.getText().toString();
-        controller.register(username.getText().toString());
+        progressBar.setVisibility(View.VISIBLE);
+        String name = Normalizer.normalize(username.getText().toString()
+          .replace(" ", ""), Normalizer.Form.NFD)
+          .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+          .toLowerCase();
+        Log.d("username", name);
+        controller.checkUser(name);
       }
     });
+  }
 
+  private void createSnackbar(int text, int color) {
+    try {
+      Snackbar mySnackbar = Snackbar.make(findViewById(R.id.layout),
+        getString(text), Snackbar.LENGTH_SHORT);
+      ((TextView) mySnackbar.getView().findViewById(android.support.design.R.id.snackbar_text))
+        .setTextColor(color);
+      TextView tv = mySnackbar.getView().findViewById(android.support.design.R.id.snackbar_text);
+      tv.setTextColor(getColor(color));
+      mySnackbar.show();
+    } catch (Exception e) {
+      //
+    }
+  }
 
-//    Button askChallenge = findViewById(R.id.askChallenge);
-//    Button getKey = findViewById(R.id.getKey);
-//    Button register = findViewById(R.id.register);
-//    askChallenge.setOnClickListener(new View.OnClickListener() {
-//      @Override
-//      public void onClick(final View v) {
-//        apiController.askChallenge("Maxime_Chiffay20", new Callback() {
-//          @Override
-//          public void onFailure(@NonNull Call call, @NonNull Throwable t) {
-//            t.printStackTrace();
-//            viewAnimator.setDisplayedChild(VIEW_FAIL);
-//          }
-//
-//          @Override
-//          public void onResponse(@NonNull Call call, @NonNull Response response) {
-//            AskChallenge askChallenge = (AskChallenge) response.body();
-//            Log.d("Controller", askChallenge.encryptedChallenge + "\n" + askChallenge.key);
-//            try {
-//              String value = cypherHelper.decryptString(askChallenge.encryptedChallenge, cypherHelper.getPrivKey("Test20"));
-//              Log.d("Decrypted", value);
-//              PublicKey key = cypherHelper.createPublicKey(askChallenge.key);
-//              String test = cypherHelper.encryptString(value, key);
-//              Log.d("Encrypted", test.replace("\n", ""));
-//              apiController.verifyChallenge("Maxime_Chiffay20", test, verif);
-//            } catch (Exception e) {
-//              e.printStackTrace();
-//              viewAnimator.setDisplayedChild(VIEW_FAIL);
-//            }
-//          }
-//        });
-//      }
-//    });
-//    getKey.setOnClickListener(new View.OnClickListener() {
-//      @Override
-//      public void onClick(View v) {
-//
-//        try {
-//
-//          Log.d("Pub", cypherHelper.getPubKeyPem("Test20"));
-//        } catch (Exception e) {
-//          e.printStackTrace();
-//          viewAnimator.setDisplayedChild(VIEW_FAIL);
-//        }
-//      }
-//    });
-
-//    register.setOnClickListener(new View.OnClickListener() {
-//      @Override
-//      public void onClick(View v) {
-//        try {
-//          String pubKey = cypherHelper.getPubKeyPem("Test20");
-//          apiController.register("Maxime_Chiffay20", pubKey, new Callback() {
-//
-//            @Override
-//            public void onResponse(@NonNull Call call, @NonNull Response response) {
-//
-//              if (response.code() == 201) {
-//                Log.d("request", response.message());
-//              } else {
-//                try {
-//                  Log.d("request", response.code() + " : " + response.errorBody().string());
-//                } catch (IOException e) {
-//                  e.printStackTrace();
-//                  viewAnimator.setDisplayedChild(VIEW_FAIL);
-//                }
-//              }
-//            }
-//
-//            @Override
-//            public void onFailure(@NonNull Call call, @NonNull Throwable t) {
-//              t.printStackTrace();
-//            }
-//          });
-//        } catch (Exception e) {
-//          e.printStackTrace();
-//          viewAnimator.setDisplayedChild(VIEW_FAIL);
-//        }
-//      }
-//    });
+  @Override
+  public void onConnectionTimeout() {
 
   }
 
-//  Callback verif = new Callback() {
-//    @Override
-//    public void onResponse(@NonNull Call call, @NonNull Response response) {
-//      Verif v = (Verif) response.body();
-//      Log.d("Verif", v.getRes().toString());
-//      if (v.getRes()) {
-//        viewAnimator.setDisplayedChild(VIEW_SUCCESS);
-//      } else {
-//        viewAnimator.setDisplayedChild(VIEW_FAIL);
-//
-//      }
-//    }
-//
-//    @Override
-//    public void onFailure(@NonNull Call call, @NonNull Throwable t) {
-//      t.printStackTrace();
-//      viewAnimator.setDisplayedChild(VIEW_FAIL);
-//    }
-//  };
 
 }

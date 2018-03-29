@@ -18,6 +18,11 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.8" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/logo1" />
+
     <EditText
         android:id="@+id/username"
         android:layout_width="0dp"
@@ -33,8 +38,19 @@
         android:id="@+id/go"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="GO"
+        android:backgroundTint="@color/colorPrimaryButton"
+        android:text="@string/connect"
+        android:textColor="@color/colorAccent"
         app:layout_constraintEnd_toStartOf="@id/guideline80"
         app:layout_constraintStart_toStartOf="@id/guideline20"
         app:layout_constraintTop_toBottomOf="@id/username" />
+
+    <ProgressBar
+        android:id="@+id/progressbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/go" />
 </android.support.constraint.ConstraintLayout>

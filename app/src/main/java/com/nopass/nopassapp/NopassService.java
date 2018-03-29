@@ -3,12 +3,13 @@ package com.nopass.nopassapp;
 import com.nopass.nopassapp.model.AskChallenge;
 import com.nopass.nopassapp.model.ChallengeWrapper;
 import com.nopass.nopassapp.model.User;
-import com.nopass.nopassapp.model.Verif;
+import com.nopass.nopassapp.model.Res;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -24,5 +25,8 @@ public interface NopassService {
   Call<User> createUser(@Body User user);
 
   @POST("/api/auth/verifychallenge")
-  Call<Verif> verifyChallenge(@Query("username") String username, @Body ChallengeWrapper challenge);
+  Call<Res> verifyChallenge(@Query("username") String username, @Body ChallengeWrapper challenge);
+
+  @GET("/api/resources/users/{user}")
+  Call<Res> isUserexists(@Path("user") String username);
 }

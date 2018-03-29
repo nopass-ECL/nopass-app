@@ -1,10 +1,20 @@
 package com.nopass.nopassapp;
 
+import android.support.annotation.NonNull;
+
 import com.nopass.nopassapp.model.AskChallenge;
 import com.nopass.nopassapp.model.ChallengeWrapper;
 import com.nopass.nopassapp.model.User;
-import com.nopass.nopassapp.model.Verif;
+import com.nopass.nopassapp.model.Res;
 
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Retrofit;
@@ -15,7 +25,39 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class ApiController {
-  private final static String URL = "http://10.0.3.2:4000";
+  public ApiController(OnConnectionTimeoutListener listener) {
+    this.listener = listener;
+  }
+
+  private OnConnectionTimeoutListener listener;
+//  private final static String URL = "http://10.0.3.2:4000";
+  private final static String URL = "http://nopass.hazegard.fr";
+
+  private OkHttpClient client = new OkHttpClient.Builder()
+    .connectTimeout(5, TimeUnit.SECONDS)
+    .readTimeout(10, TimeUnit.SECONDS)
+    .addInterceptor(new Interceptor() {
+      @Override
+      public Response intercept(@NonNull Chain chain) throws IOException {
+        return onOnIntercept(chain);
+      }
+    })
+    .build();
+
+  private Response onOnIntercept(Interceptor.Chain chain) throws IOException {
+    try {
+      Response response = chain.proceed(chain.request());
+//      String content = UtilityMethods.convertResponseToString(response);
+//      Log.d(TAG, lastCalledMethodName + " - " + content);
+      return response.newBuilder().body(ResponseBody.create(response.body().contentType(), response.message())).build();
+    } catch (SocketTimeoutException exception) {
+      exception.printStackTrace();
+      if (listener != null)
+        listener.onConnectionTimeout();
+    }
+
+    return chain.proceed(chain.request());
+  }
 
   private Retrofit retrofit = new Retrofit.Builder()
     .baseUrl(URL)
@@ -35,9 +77,18 @@ public class ApiController {
     resp.enqueue(callback);
   }
 
-  void verifyChallenge(String username, String encryptedChallenge, Callback<Verif> cb) {
+  void verifyChallenge(String username, String encryptedChallenge, Callback<Res> cb) {
     ChallengeWrapper challengeWrapper = new ChallengeWrapper(encryptedChallenge);
-    Call<Verif> resp = service.verifyChallenge(username, challengeWrapper);
+    Call<Res> resp = service.verifyChallenge(username, challengeWrapper);
     resp.enqueue(cb);
+  }
+
+  void isUserexists(String username, Callback cb) {
+    Call<Res> resp = service.isUserexists(username);
+    resp.enqueue(cb);
+  }
+
+  public interface OnConnectionTimeoutListener {
+    void onConnectionTimeout();
   }
 }

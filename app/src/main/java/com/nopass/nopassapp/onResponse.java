@@ -7,5 +7,6 @@ package com.nopass.nopassapp;
 public interface onResponse {
   void onSuccess();
 
+  void onCancel();
   void onFailure();
 }
