@@ -66,23 +66,19 @@ public class CypherHelper {
   }
 
   PrivateKey getPrivKey(String keyName) {
-    KeyStore.Entry entry = null;
+    KeyStore.Entry entry;
     try {
       entry = keyStore.getEntry(keyName, null);
-      PrivateKey privateKey = ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
-      return privateKey;
-    } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException e) {
+      return ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
+    } catch (Exception e) {
       e.printStackTrace();
     }
-//    Log.d("PrivKey","**************************");
-//    Log.d("PrivKey",privateKey.getEncoded().toString());
     return null;
   }
 
   private PublicKey getPubKey(String keyName) throws UnrecoverableEntryException, NoSuchAlgorithmException, KeyStoreException {
 //    KeyStore.PrivateKeyEntry entry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(keyName, null);
-    PublicKey publicKey = keyStore.getCertificate(keyName).getPublicKey();
-    return publicKey;
+    return keyStore.getCertificate(keyName).getPublicKey();
   }
 
   String getPubKeyPem(String keyName) throws UnrecoverableEntryException, NoSuchAlgorithmException, KeyStoreException {

@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.nopass.nopassapp.model.AskChallenge;
 import com.nopass.nopassapp.model.Res;
+import com.nopass.nopassapp.model.User;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -29,7 +30,7 @@ public class Controller {
   private onResponse callback;
   private ApiController apiController;
 
-  public Controller(CypherHelper cypherHelper, Activity context, onResponse callback, ApiController.OnConnectionTimeoutListener listener) {
+  Controller(CypherHelper cypherHelper, Activity context, onResponse callback, ApiController.OnConnectionTimeoutListener listener) {
     this.cypherHelper = cypherHelper;
     this.context = context;
     this.callback = callback;
@@ -40,8 +41,8 @@ public class Controller {
     apiController.isUserexists(username, onCheckUser(username));
   }
 
-  private Callback onCheckUser(final String username) {
-    return new Callback() {
+  private Callback<Res> onCheckUser(final String username) {
+    return new Callback<Res>() {
       @Override
       public void onResponse(@NonNull Call call, @NonNull Response response) {
         Res res = (Res) response.body();
@@ -72,7 +73,7 @@ public class Controller {
       }
 
       @Override
-      public void onFailure(Call call, Throwable t) {
+      public void onFailure(@NonNull Call call, @NonNull Throwable t) {
         t.printStackTrace();
       }
     };
@@ -88,8 +89,8 @@ public class Controller {
     }
   }
 
-  private Callback onRegister(final String username) {
-    return new Callback() {
+  private Callback<User> onRegister(final String username) {
+    return new Callback<User>() {
       @Override
       public void onResponse(@NonNull Call call, @NonNull Response response) {
 //        if (response.code() == 201) {
@@ -123,11 +124,11 @@ public class Controller {
     }
   }
 
-  public void resolveChallenge(String username) {
+  private void resolveChallenge(String username) {
     apiController.askChallenge(username, onAskChallenge(username));
   }
 
-  private Callback onAskChallenge(final String username) {
+  private Callback<AskChallenge> onAskChallenge(final String username) {
     return new Callback<AskChallenge>() {
       @Override
       public void onResponse(@NonNull Call call, @NonNull Response response) {
@@ -152,7 +153,6 @@ public class Controller {
     @Override
     public void onResponse(@NonNull Call call, @NonNull Response response) {
       Res verif = (Res) response.body();
-//      Toast.makeText(context, verif != null ? verif.getRes().toString() : "Error", Toast.LENGTH_SHORT).show();
       if (verif != null ? verif.getRes() : false) {
         callback.onSuccess();
       } else {

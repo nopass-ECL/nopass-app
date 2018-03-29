@@ -4,8 +4,8 @@ import android.support.annotation.NonNull;
 
 import com.nopass.nopassapp.model.AskChallenge;
 import com.nopass.nopassapp.model.ChallengeWrapper;
-import com.nopass.nopassapp.model.User;
 import com.nopass.nopassapp.model.Res;
+import com.nopass.nopassapp.model.User;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -30,7 +30,7 @@ public class ApiController {
   }
 
   private OnConnectionTimeoutListener listener;
-//  private final static String URL = "http://10.0.3.2:4000";
+  //  private final static String URL = "http://10.0.3.2:4000";
   private final static String URL = "http://nopass.hazegard.fr";
 
   private OkHttpClient client = new OkHttpClient.Builder()
@@ -66,12 +66,12 @@ public class ApiController {
 
   private NopassService service = retrofit.create(NopassService.class);
 
-  void askChallenge(String username, Callback cb) {
+  void askChallenge(String username, Callback<AskChallenge> cb) {
     Call<AskChallenge> resp = service.askChallenge(username);
     resp.enqueue(cb);
   }
 
-  public void register(String username, String pukKey, Callback callback) {
+  public void register(String username, String pukKey, Callback<User> callback) {
     User user = new User(username, pukKey);
     Call<User> resp = service.createUser(user);
     resp.enqueue(callback);
@@ -83,7 +83,7 @@ public class ApiController {
     resp.enqueue(cb);
   }
 
-  void isUserexists(String username, Callback cb) {
+  void isUserexists(String username, Callback<Res> cb) {
     Call<Res> resp = service.isUserexists(username);
     resp.enqueue(cb);
   }
