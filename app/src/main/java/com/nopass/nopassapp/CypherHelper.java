@@ -128,8 +128,6 @@ public class CypherHelper {
   }
 
   PublicKey createPublicKey(String encodedPubKey) {
-
-    Log.d("encodedPubKey", encodedPubKey);
     byte[] publicBytes = Base64.decode(encodedPubKey, Base64.DEFAULT);
     X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicBytes);
     KeyFactory keyFactory = null;
@@ -146,7 +144,6 @@ public class CypherHelper {
 
   void createNewKey(String keyName) throws KeyStoreException, NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
     if (!keyStore.containsAlias(keyName)) {
-      Log.d("***********************", "key not exists");
       KeyPairGenerator kpg = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, "AndroidKeyStore");
       KeyGenParameterSpec kps = new KeyGenParameterSpec.Builder(keyName, KeyProperties.PURPOSE_DECRYPT | KeyProperties.PURPOSE_ENCRYPT)
         .setDigests(KeyProperties.DIGEST_SHA1, KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)

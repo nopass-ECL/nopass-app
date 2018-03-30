@@ -104,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements onResponse, ApiCo
           .replace(" ", ""), Normalizer.Form.NFD)
           .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
           .toLowerCase();
-        Log.d("username", name);
         controller.checkUser(name);
       }
     });
