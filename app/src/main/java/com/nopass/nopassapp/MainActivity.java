@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements onResponse, ApiCo
     if (viewAnimator.getDisplayedChild() != VIEW_CONNEXION) {
       viewAnimator.setDisplayedChild(VIEW_CONNEXION);
       getSupportActionBar().setHomeAsUpIndicator(R.drawable.appicon);
+    } else {
+      moveTaskToBack(true);
     }
   }
 
