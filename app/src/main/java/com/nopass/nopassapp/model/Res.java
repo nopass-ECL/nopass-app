@@ -5,7 +5,7 @@ package com.nopass.nopassapp.model;
  */
 
 public class Res {
-  Boolean res;
+  private Boolean res;
 
   public Boolean getRes() {
     return res;

@@ -2,8 +2,8 @@ package com.nopass.nopassapp;
 
 import com.nopass.nopassapp.model.AskChallenge;
 import com.nopass.nopassapp.model.ChallengeWrapper;
-import com.nopass.nopassapp.model.User;
 import com.nopass.nopassapp.model.Res;
+import com.nopass.nopassapp.model.User;
 
 import retrofit2.Call;
 import retrofit2.http.Body;

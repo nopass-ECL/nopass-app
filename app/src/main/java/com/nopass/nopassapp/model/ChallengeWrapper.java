@@ -5,7 +5,7 @@ package com.nopass.nopassapp.model;
  */
 
 public class ChallengeWrapper {
-  String challenge;
+  private String challenge;
 
   public ChallengeWrapper(String challenge) {
     this.challenge = challenge;

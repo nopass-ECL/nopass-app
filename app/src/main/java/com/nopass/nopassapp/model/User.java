@@ -5,8 +5,8 @@ package com.nopass.nopassapp.model;
  */
 
 public class User {
-  String name;
-  String publicKey;
+  private String name;
+  private String publicKey;
 
   public User(String name, String publicKey) {
     this.name = name;

@@ -3,7 +3,6 @@ package com.nopass.nopassapp;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
-import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -76,7 +75,7 @@ public class CypherHelper {
     return null;
   }
 
-  private PublicKey getPubKey(String keyName) throws UnrecoverableEntryException, NoSuchAlgorithmException, KeyStoreException {
+  private PublicKey getPubKey(String keyName) throws KeyStoreException {
 //    KeyStore.PrivateKeyEntry entry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(keyName, null);
     return keyStore.getCertificate(keyName).getPublicKey();
   }

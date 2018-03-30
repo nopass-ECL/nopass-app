@@ -8,5 +8,6 @@ public interface onResponse {
   void onSuccess();
 
   void onCancel();
+
   void onFailure();
 }
